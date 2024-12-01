@@ -63,15 +63,18 @@ public class CarServiceImpl implements CarService {
         Car car = carRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Машина с ID " + id + " не найдена."));
 
-        // Проверяю права пользователя
-        if (!userService.isCurrentUserOrAdmin(car.getOwner().getEmail())) {
-            throw new SecurityException("Вы не можете редактировать данные этой машины.");
+        User owner = car.getOwner();
+
+        // Проверка прав доступа
+        if (!userService.isCurrentUserOrAdmin(owner.getEmail(), owner.getId())) {
+            throw new SecurityException("Недостаточно прав для выполнения операции.");
         }
 
         car.setModel(carRequest.getModel());
         car.setEnginePower(carRequest.getEnginePower());
         car.setTorque(carRequest.getTorque());
         car.setLastMaintenanceTimestamp(carRequest.getLastMaintenanceTimestamp());
+
         return mapToResponse(carRepository.save(car));
     }
 
@@ -81,9 +84,11 @@ public class CarServiceImpl implements CarService {
         Car car = carRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Машина с ID " + id + " не найдена."));
 
-        // Проверяю права пользователя
-        if (!userService.isCurrentUserOrAdmin(car.getOwner().getEmail())) {
-            throw new SecurityException("Вы не можете удалить эту машину.");
+        User owner = car.getOwner();
+
+        // Проверка прав доступа
+        if (!userService.isCurrentUserOrAdmin(owner.getEmail(), owner.getId())) {
+            throw new SecurityException("Недостаточно прав для выполнения операции.");
         }
 
         carRepository.delete(car);

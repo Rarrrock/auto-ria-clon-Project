@@ -18,10 +18,4 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT u FROM User u WHERE u.accountType = :accountType")
     List<User> findByAccountType(@Param("accountType") AccountType accountType);
 
-    @Query("""
-        SELECT CASE WHEN COUNT(u) > 0 THEN TRUE ELSE FALSE END
-        FROM User u
-        WHERE (u.email = :email AND u.id = :userId) OR u.role = 'ADMIN'
-       """)
-    boolean isCurrentUserOrAdmin(@Param("email") String email, @Param("userId") Long userId);
 }

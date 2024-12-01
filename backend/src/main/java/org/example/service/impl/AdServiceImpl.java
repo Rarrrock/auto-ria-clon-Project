@@ -10,6 +10,7 @@ import org.example.entity.User;
 import org.example.repository.AdRepository;
 import org.example.repository.UserRepository;
 import org.example.service.AdService;
+import org.example.service.UserService;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -22,6 +23,7 @@ public class AdServiceImpl implements AdService {
 
     private final AdRepository adRepository;
     private final UserRepository userRepository;
+    private final UserService userService;
 
     // Создаю Объявление
     @Override
@@ -63,12 +65,14 @@ public class AdServiceImpl implements AdService {
         Ad existingAd = adRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Объявление с ID " + id + " не найдено."));
 
-        // Проверяю права пользователя
         User owner = existingAd.getOwner();
-        if (!userRepository.isCurrentUserOrAdmin(owner.getEmail())) {
-            throw new SecurityException("Вы не можете редактировать это объявление.");
+
+        // Проверка прав доступа
+        if (!userService.isCurrentUserOrAdmin(owner.getEmail(), owner.getId())) {
+            throw new SecurityException("Недостаточно прав для выполнения операции.");
         }
 
+        // Обновляем данные объявления
         existingAd.setTitle(adRequest.getTitle());
         existingAd.setDescription(adRequest.getDescription());
         existingAd.setPrice(adRequest.getPrice());
@@ -81,16 +85,17 @@ public class AdServiceImpl implements AdService {
     // Удаляю Объявление
     @Override
     public void deleteAd(Long id) {
-        Ad ad = adRepository.findById(id)
+        Ad existingAd = adRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Объявление с ID " + id + " не найдено."));
 
-        // Проверяю права пользователя
-        User owner = ad.getOwner();
-        if (!userRepository.isCurrentUserOrAdmin(owner.getEmail())) {
-            throw new SecurityException("Вы не можете удалить это объявление.");
+        User owner = existingAd.getOwner();
+
+        // Проверка прав доступа
+        if (!userService.isCurrentUserOrAdmin(owner.getEmail(), owner.getId())) {
+            throw new SecurityException("Недостаточно прав для выполнения операции.");
         }
 
-        adRepository.delete(ad);
+        adRepository.delete(existingAd);
     }
 
     // Преобразую Ad в AdResponse

@@ -24,4 +24,6 @@ public interface UserService {
     void updateUserRole(Long userId, RoleEnum newRole); // Меняю роль пользователя
 
     boolean isAdminOrManager(String email); // Проверяю роль
+
+    boolean isCurrentUserOrAdmin(String email, Long userId); // Проверяю доступ
 }

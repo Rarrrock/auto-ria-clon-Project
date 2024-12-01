@@ -105,4 +105,11 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
         return user.getRole() == RoleEnum.ADMIN || user.getRole() == RoleEnum.MANAGER;
     }
+
+    @Override
+    public boolean isCurrentUserOrAdmin(String email, Long userId) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден."));
+        return user.getId().equals(userId) || user.getRole() == RoleEnum.ADMIN;
+    }
 }
