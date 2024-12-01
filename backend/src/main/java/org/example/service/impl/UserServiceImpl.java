@@ -102,7 +102,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean isAdminOrManager(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Пользователь с таким email не найден."));
+                .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
         return user.getRole() == RoleEnum.ADMIN || user.getRole() == RoleEnum.MANAGER;
     }
 }
